@@ -1,7 +1,7 @@
 import streamlit as st
 
 
-st.set_page_config(page_title='Tims First Website', page_icon=':sloth:', layout='wide')
+st.set_page_config(page_title='Tims First Website', page_icon=':shark:', layout='wide')
 st.title('Hello and welcome to Tim\'s first website!')
 st.write('Please check back soon for updates and Fantasy Premier League Football tips and stats.')
 
