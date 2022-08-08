@@ -52,6 +52,8 @@ def get_manager_history_data(manager_id):
 
 fpl_id = st.text_input('Please enter your FPL ID:', '')
 
-
-manager_data = get_manager_history_data(fpl_id)
-display_frame(manager_data)
+if fpl_id == '':
+	st.write('')
+else: 
+	manager_data = get_manager_history_data(fpl_id)
+	display_frame(manager_data)
