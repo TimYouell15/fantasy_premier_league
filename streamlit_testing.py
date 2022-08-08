@@ -52,12 +52,15 @@ def get_manager_history_data(manager_id):
 
 fpl_id = st.text_input('Please enter your FPL ID:', '')
 
+
 if fpl_id == '':
 	st.write('')
 else:
-	if type(fpl_id) == int:
-		st.write('Displaying FPL 2022/23 Season Data for FPL ID: ' + str(fpl_id))
-		manager_data = get_manager_history_data(fpl_id)
-		display_frame(manager_data)
-	else:
-		st.write('Please enter a valid FPL ID.')
+    try:
+        fpl_id = int(fpl_id)
+        st.write('Displaying FPL 2022/23 Season Data for FPL ID: ' + str(fpl_id))
+        manager_data = get_manager_history_data(fpl_id)
+        display_frame(manager_data)
+    except ValueError:
+        st.write('Please enter a valid FPL ID.')
+		
