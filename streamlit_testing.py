@@ -55,7 +55,7 @@ fpl_id = st.text_input('Please enter your FPL ID:', '')
 if fpl_id == '':
 	st.write('')
 else:
-	if isinstance(fpl_id, int) == True:
+	if type(fpl_id) == int:
 		st.write('Displaying FPL 2022/23 Season Data for FPL ID: ' + str(fpl_id))
 		manager_data = get_manager_history_data(fpl_id)
 		display_frame(manager_data)
