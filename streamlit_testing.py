@@ -50,8 +50,8 @@ def get_manager_history_data(manager_id):
 # st.write please enter your FPL id below
 #st. text input box
 
-st.text_input('Please enter your FPL ID:', '')
+fpl_id = st.text_input('Please enter your FPL ID:', 'FPL ID')
 
 
-manager_data = get_manager_history_data(392357)
+manager_data = get_manager_history_data(fpl_id)
 display_frame(manager_data)
