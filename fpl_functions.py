@@ -1,26 +1,8 @@
-import streamlit as st
 import pandas as pd
 import requests
 
+
 base_url = 'https://fantasy.premierleague.com/api/'
-
-st.set_page_config(page_title='Tims First Website', page_icon=':shark:', layout='wide')
-st.title('Hello and welcome to Tim\'s first website!')
-st.write('Please check back soon for updates and Fantasy Premier League Football tips and stats.')
-
-st.write('[Personal Github Page](https://github.com/TimYouell15)')
-
-if st.button('Click me for a joke'):
-	st.write('The change in weather here in Sydney has got me swapping from aerosol deodorant. Roll on next week.')
-else:
-	st.write('I promise it will be worth it')
-
-def display_frame(df):
-    '''display dataframe with all float columns rounded to 1 decimal place'''
-    float_cols = df.select_dtypes(include='float64').columns.values
-    st.dataframe(df.style.format(subset=float_cols, formatter='{:.1f}'))
-
-
 
 def get_bootstrap_data(data_type):
     resp = requests.get(base_url + 'bootstrap-static/')
@@ -48,4 +30,4 @@ def get_manager_history_data(manager_id):
 
 
 manager_data = get_manager_history_data(392357)
-display_frame(manager_data)
+print(manager_data.head(5))
