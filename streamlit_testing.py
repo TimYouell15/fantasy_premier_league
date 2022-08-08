@@ -47,5 +47,11 @@ def get_manager_history_data(manager_id):
         print('Unable to reach bootstrap API successfully')
 
 
+# st.write please enter your FPL id below
+#st. text input box
+
+st.text_input('Please enter your FPL ID:', '')
+
+
 manager_data = get_manager_history_data(392357)
 display_frame(manager_data)
