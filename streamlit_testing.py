@@ -21,7 +21,6 @@ def display_frame(df):
     st.dataframe(df.style.format(subset=float_cols, formatter='{:.1f}'))
 
 
-
 def get_bootstrap_data(data_type):
     resp = requests.get(base_url + 'bootstrap-static/')
     if resp.status_code != 200:
@@ -49,6 +48,11 @@ def get_manager_history_data(manager_id):
 
 # st.write please enter your FPL id below
 #st. text input box
+# is there a way to view total number of FPL players?
+def get_total_fpl_players():
+    base_resp = requests.get(base_url + 'bootstrap-static/')
+    return base_resp.json()['total_players']
+
 
 fpl_id = st.text_input('Please enter your FPL ID:', '')
 
@@ -58,9 +62,19 @@ if fpl_id == '':
 else:
     try:
         fpl_id = int(fpl_id)
-        st.write('Displaying FPL 2022/23 Season Data for FPL ID: ' + str(fpl_id))
-        manager_data = get_manager_history_data(fpl_id)
-        display_frame(manager_data)
+        total_players = get_total_fpl_players()
+        if fpl_id <= total_players:
+            st.write('Displaying FPL 2022/23 Season Data for FPL ID: ' + str(fpl_id))
+            manager_data = get_manager_history_data(fpl_id)
+            display_frame(manager_data)
+        else:
+            st.write('FPL ID is too high to be a valid ID. Please try again.')
+            st.write('The total number of FPL players is: ' + str(total_players))
     except ValueError:
         st.write('Please enter a valid FPL ID.')
-		
+
+
+
+
+
+
