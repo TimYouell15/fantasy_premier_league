@@ -54,10 +54,12 @@ def get_manager_history_data(manager_id):
 # st.write please enter your FPL id below
 #st. text input box
 # is there a way to view total number of FPL players?
+
 def get_total_fpl_players():
     base_resp = requests.get(base_url + 'bootstrap-static/')
     return base_resp.json()['total_players']
 
+# data = base_resp.json()
 
 fpl_id = st.sidebar.text_input('Please enter your FPL ID:', '')
 
