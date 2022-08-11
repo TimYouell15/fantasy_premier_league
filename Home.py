@@ -1,6 +1,9 @@
 import streamlit as st
 import pandas as pd
 import requests
+from fpl_api_collection import (
+    get_bootstrap_data, get_fixture_data
+)
 
 base_url = 'https://fantasy.premierleague.com/api/'
 
@@ -22,29 +25,10 @@ def display_frame(df):
     st.dataframe(df.style.format(subset=float_cols, formatter='{:.1f}'))
 
 
-def get_bootstrap_data(data_type):
-    resp = requests.get(base_url + 'bootstrap-static/')
-    if resp.status_code != 200:
-        raise Exception('Response was status code ' + str(resp.status_code))
-    data = resp.json()
-    try:
-        elements_data = pd.DataFrame(data[data_type])
-        return elements_data
-    except KeyError:
-        print('Unable to reach bootstrap API successfully')
+fixt_df = get_fixture_data()
 
+display_frame(fixt_df)
 
-def get_manager_history_data(manager_id):
-    manager_hist_url = base_url + 'entry/' + str(manager_id) + '/history/'
-    resp = requests.get(manager_hist_url)
-    if resp.status_code != 200:
-        raise Exception('Response was status code ' + str(resp.status_code))
-    json = resp.json()
-    try:
-        data = pd.DataFrame(json['current'])
-        return data
-    except KeyError:
-        print('Unable to reach bootstrap API successfully')
 
 
 # st.write please enter your FPL id below
