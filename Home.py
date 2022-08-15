@@ -19,17 +19,6 @@ st.sidebar.write("""This website is designed to help you analyse and
 st.sidebar.write('[Github](https://github.com/TimYouell15)')
 
 
-def display_frame(df):
-    '''display dataframe with all float columns rounded to 1 decimal place'''
-    float_cols = df.select_dtypes(include='float64').columns.values
-    st.dataframe(df.style.format(subset=float_cols, formatter='{:.1f}'))
-
-
-fixt_df = get_fixture_data()
-
-display_frame(fixt_df)
-
-
 
 # st.write please enter your FPL id below
 #st. text input box
