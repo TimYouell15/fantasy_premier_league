@@ -99,7 +99,9 @@ new_fixt_df.drop('fixt_ave', axis=1, inplace=True)
 filtered_team_df = filtered_team_df.loc[new_fixt_df.index]
 
 fig, ax = plt.subplots()
-sns.heatmap(new_fixt_df, ax=ax, annot=filtered_team_df, fmt='', cmap='GnBu', annot_kws={'size': annot_size})
+sns.heatmap(new_fixt_df, ax=ax, annot=filtered_team_df, fmt='', cmap='GnBu',
+            annot_kws={'size': annot_size})
+ax.set_label('Gameweek')
 st.write(fig)
 
 
