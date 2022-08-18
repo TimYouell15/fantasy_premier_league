@@ -119,5 +119,3 @@ def fdr_heatmap(slider1, slider2):
 
 
 #sns.heatmap(team_fdr_df, annot=True)
-
-
