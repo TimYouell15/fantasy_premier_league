@@ -19,6 +19,7 @@ base_url = 'https://fantasy.premierleague.com/api/'
 st.set_page_config(page_title='Fixtures', page_icon=':calendar:', layout='wide')
 
 st.header("Premier League Fixture List")
+st.write('Use the sliders to filter the fixtures down to a specific gameweek range.')
 
 st.sidebar.subheader('About')
 st.sidebar.write("""This website is designed to help you analyse and

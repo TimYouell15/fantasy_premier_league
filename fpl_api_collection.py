@@ -78,3 +78,22 @@ total_managers = get_bootstrap_data()['total_players']
 
 
 fixt = get_fixture_data()
+
+
+ele_df = pd.DataFrame(ele_data)
+#keep only required cols
+
+
+ele_cols = ['web_name', 'chance_of_playing_this_round', 'element_type',
+            'event_points', 'form', 'now_cost', 'points_per_game',
+            'selected_by_percent', 'team', 'total_points',
+            'transfers_in_event', 'transfers_out_event', 'value_form',
+            'value_season', 'minutes', 'goals_scored', 'assists',
+            'clean_sheets', 'goals_conceded', 'own_goals', 'penalties_saved',
+            'penalties_missed', 'yellow_cards', 'red_cards', 'saves', 'bonus',
+            'bps', 'influence', 'creativity', 'threat', 'ict_index',
+            'influence_rank', 'influence_rank_type', 'creativity_rank',
+            'creativity_rank_type', 'threat_rank', 'threat_rank_type',
+            'ict_index_rank', 'ict_index_rank_type', 'dreamteam_count']
+
+ele_df = ele_df[ele_cols]
