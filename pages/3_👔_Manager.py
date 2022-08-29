@@ -9,6 +9,10 @@ Created on Tue Aug  9 11:13:09 2022
 import streamlit as st
 import pandas as pd
 import requests
+from fpl_api_collection import (
+    get_bootstrap_data, get_manager_history_data, get_manager_team_data,
+    get_manager_details
+)
 
 base_url = 'https://fantasy.premierleague.com/api/'
 
@@ -25,31 +29,6 @@ def display_frame(df):
     '''display dataframe with all float columns rounded to 1 decimal place'''
     float_cols = df.select_dtypes(include='float64').columns.values
     st.dataframe(df.style.format(subset=float_cols, formatter='{:.1f}'))
-
-
-def get_bootstrap_data(data_type):
-    resp = requests.get(base_url + 'bootstrap-static/')
-    if resp.status_code != 200:
-        raise Exception('Response was status code ' + str(resp.status_code))
-    data = resp.json()
-    try:
-        elements_data = pd.DataFrame(data[data_type])
-        return elements_data
-    except KeyError:
-        print('Unable to reach bootstrap API successfully')
-
-
-def get_manager_history_data(manager_id):
-    manager_hist_url = base_url + 'entry/' + str(manager_id) + '/history/'
-    resp = requests.get(manager_hist_url)
-    if resp.status_code != 200:
-        raise Exception('Response was status code ' + str(resp.status_code))
-    json = resp.json()
-    try:
-        data = pd.DataFrame(json['current'])
-        return data
-    except KeyError:
-        print('Unable to reach bootstrap API successfully')
 
 
 # st.write please enter your FPL id below
@@ -69,8 +48,13 @@ else:
     try:
         fpl_id = int(fpl_id)
         total_players = get_total_fpl_players()
-        if fpl_id <= total_players:
-            st.write('Displaying FPL 2022/23 Season Data for FPL ID: ' + str(fpl_id))
+        if fpl_id == 0:
+            st.write('Please enter a valid FPL ID.')
+        elif fpl_id <= total_players:
+            manager_data = get_manager_details(fpl_id)
+            manager_name = manager_data['player_first_name'] + ' ' + manager_data['player_last_name']
+            manager_team = manager_data['name']
+            st.write('Displaying FPL 2022/23 Season Data for ' + manager_name + '\'s Team (' + manager_team + ')')
             manager_data = get_manager_history_data(fpl_id)
             display_frame(manager_data)
         else:
@@ -78,3 +62,21 @@ else:
             st.write('The total number of FPL players is: ' + str(total_players))
     except ValueError:
         st.write('Please enter a valid FPL ID.')
+
+
+events_df = pd.DataFrame(get_bootstrap_data()['events'])
+complete_df = events_df.loc[events_df['finished'] == True]
+
+gw_complete_list = complete_df['id'].tolist()
+
+fpl_gw = st.selectbox(
+    'Team on specific Gameweek', gw_complete_list
+    )
+
+manager_team_df = get_manager_team_data(fpl_id, fpl_gw)
+
+
+
+
+
+display_frame(manager_team_df)

@@ -42,12 +42,19 @@ ele_cols = ['web_name', 'chance_of_playing_this_round', 'element_type',
 
 ele_df = ele_df[ele_cols]
 
-ele_df.sort_values('total_points', ascending=False, inplace=True)
+'''
+# comparison of players via spider web method?
+- chances per 90
+- assists per 90
+- goals per 90
+- xA per 90
+- xG per 90
+- crosses per 90
+- shots per 90
 
-def display_frame(df):
-    '''display dataframe with all float columns rounded to 1 decimal place'''
-    float_cols = df.select_dtypes(include='float64').columns.values
-    st.dataframe(df.style.format(subset=float_cols, formatter='{:.1f}'))
+# comparison of keepers - automatically switch to keeper stats
+- saves per 90
+- bps per 90
+- etc
+'''
 
-
-display_frame(ele_df)

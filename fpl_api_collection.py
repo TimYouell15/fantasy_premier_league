@@ -56,7 +56,21 @@ def get_manager_history_data(manager_id):
         data = pd.DataFrame(json['current'])
         return data
     except KeyError:
-        print('Unable to reach FPL bootstrap-static API endpoint.')
+        print('Unable to reach FPL entry API endpoint.')
+
+
+def get_manager_team_data(manager_id, gameweek):
+    manager_data_url = base_url + 'entry/' + str(9) + '/event/' + str(gameweek) + '/picks/'
+    resp = requests.get(manager_data_url)
+    if resp.status_code != 200:
+        raise Exception('Response was status code ' + str(resp.status_code))
+    json = resp.json()
+    try:
+        data = pd.DataFrame(json['picks'])
+        return data
+    except KeyError:
+        print('Unable to reach FPL entry API endpoint.')
+
 
 
 def get_fixture_data():
@@ -65,6 +79,19 @@ def get_fixture_data():
         raise Exception('Response was status code ' + str(resp.status_code))
     else:
         return pd.DataFrame(resp.json())
+
+
+def get_manager_details(manager_id):
+    manager_hist_url = base_url + 'entry/' + str(manager_id) + '/'
+    resp = requests.get(manager_hist_url)
+    if resp.status_code != 200:
+        raise Exception('Response was status code ' + str(resp.status_code))
+    try:
+        return resp.json()
+    except KeyError:
+        print('Unable to reach FPL entry API endpoint.')
+
+
 
 
 ele_stats_data = get_bootstrap_data()['element_stats']
@@ -81,6 +108,9 @@ fixt = get_fixture_data()
 
 
 ele_df = pd.DataFrame(ele_data)
+
+events_df = pd.DataFrame(events_data)
+
 #keep only required cols
 
 
@@ -97,3 +127,7 @@ ele_cols = ['web_name', 'chance_of_playing_this_round', 'element_type',
             'ict_index_rank', 'ict_index_rank_type', 'dreamteam_count']
 
 ele_df = ele_df[ele_cols]
+
+picks_df = get_manager_team_data(9, 4)
+
+
