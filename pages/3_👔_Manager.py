@@ -55,8 +55,8 @@ else:
             manager_name = manager_data['player_first_name'] + ' ' + manager_data['player_last_name']
             manager_team = manager_data['name']
             st.write('Displaying FPL 2022/23 Season Data for ' + manager_name + '\'s Team (' + manager_team + ')')
-            manager_data = get_manager_history_data(fpl_id)
-            display_frame(manager_data)
+            man_data = get_manager_history_data(fpl_id)
+            display_frame(man_data)
         else:
             st.write('FPL ID is too high to be a valid ID. Please try again.')
             st.write('The total number of FPL players is: ' + str(total_players))

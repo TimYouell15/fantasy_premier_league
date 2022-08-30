@@ -93,7 +93,6 @@ def get_manager_details(manager_id):
 
 
 
-
 ele_stats_data = get_bootstrap_data()['element_stats']
 ele_types_data = get_bootstrap_data()['element_types']
 ele_data = get_bootstrap_data()['elements']
