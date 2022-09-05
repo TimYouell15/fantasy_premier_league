@@ -22,7 +22,7 @@ st.sidebar.subheader('About')
 st.sidebar.write("""This website is designed to help you analyse and
                  ultimately pick the best Fantasy Premier League Football
                  options for your team.""")
-st.sidebar.write('[Github](https://github.com/TimYouell15)')
+st.sidebar.write('[GitHub](https://github.com/TimYouell15)')
 
 
 def display_frame(df):
