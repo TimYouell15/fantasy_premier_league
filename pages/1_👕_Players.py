@@ -8,6 +8,7 @@ Created on Tue Aug  9 11:13:09 2022
 
 import streamlit as st
 import pandas as pd
+import numpy as np
 from fpl_api_collection import get_player_id_dict, get_bootstrap_data
 
 base_url = 'https://fantasy.premierleague.com/api/'
@@ -30,14 +31,13 @@ st.sidebar.write('[Github](https://github.com/TimYouell15)')
 
 
 
-
-
-
+ele_types_data = get_bootstrap_data()['element_types']
+ele_types_df = pd.DataFrame(ele_types_data)
 
 ele_data = get_bootstrap_data()['elements']
-
 ele_df = pd.DataFrame(ele_data)
-#keep only required cols
+
+ele_df['element_type'] = ele_df['element_type'].map(ele_types_df.set_index('id')['singular_name_short'])
 
 
 ele_cols = ['web_name', 'chance_of_playing_this_round', 'element_type',
@@ -53,6 +53,14 @@ ele_cols = ['web_name', 'chance_of_playing_this_round', 'element_type',
             'ict_index_rank', 'ict_index_rank_type', 'dreamteam_count']
 
 ele_df = ele_df[ele_cols]
+
+df_cut = ele_df.loc[ele_df['minutes'] >= 90]
+
+pivot=ele_df.pivot_table(index='element_type', values='total_points', aggfunc=np.mean).reset_index()
+pp_position = pivot.sort_values('total_points',ascending=False)
+
+
+
 
 '''
 # comparison of players via spider web method?

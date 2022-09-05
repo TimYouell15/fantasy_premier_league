@@ -29,17 +29,28 @@ def get_total_fpl_players():
     base_resp = requests.get(base_url + 'bootstrap-static/')
     return base_resp.json()['total_players']
 
-# data = base_resp.json()
 
+def display_frame(df):
+    '''display dataframe with all float columns rounded to 1 decimal place'''
+    float_cols = df.select_dtypes(include='float64').columns.values
+    st.dataframe(df.style.format(subset=float_cols, formatter='{:.1f}'))
+
+
+ele_types_data = get_bootstrap_data()['element_types']
+ele_types_df = pd.DataFrame(ele_types_data)
+
+teams_data = get_bootstrap_data()['teams']
+teams_df = pd.DataFrame(teams_data)
 
 ele_data = get_bootstrap_data()['elements']
-
 ele_df = pd.DataFrame(ele_data)
-#keep only required cols
+
+ele_df['element_type'] = ele_df['element_type'].map(ele_types_df.set_index('id')['singular_name_short'])
+ele_df['team'] = ele_df['team'].map(teams_df.set_index('id')['short_name'])
 
 rn_cols = {'web_name': 'Name', 'team': 'Team', 'element_type': 'Pos', 
-           'event_points': 'Event_Pts', 'total_points': 'Pts',
-           'now_cost': '£', 'selected_by_percent': 'TSB%', 'minutes': 'Mins',
+           'event_points': 'GW_Pts', 'total_points': 'Pts', 'now_cost': '£',
+           'selected_by_percent': 'TSB%', 'minutes': 'Mins',
            'goals_scored': 'GS', 'assists': 'A',
            'penalties_missed': 'Pen_Miss', 'clean_sheets': 'CS',
            'goals_conceded': 'GC', 'own_goals': 'OG',
@@ -65,17 +76,12 @@ ele_df['£'] = ele_df['£']/10
 
 ele_df['TSB%'] = ele_df['TSB%'].astype(float)
 
-def display_frame(df):
-    '''display dataframe with all float columns rounded to 1 decimal place'''
-    float_cols = df.select_dtypes(include='float64').columns.values
-    st.dataframe(df.style.format(subset=float_cols, formatter='{:.1f}'))
-
 st.header('Season Totals')
 
-ele_cols = ['Name', 'Team', 'Pos', 'Event_Pts', 'Pts', '£', 'TSB%', 'GP',
-            'Mins', 'GS', 'A', 'Pen_Miss', 'CS', 'GC', 'OG', 'P_Saved', 'S',
-            'YC', 'RC', 'B', 'BPS', 'Value', 'PPG', 'I', 'C', 'T', 'ICT',
-            'I_Rank', 'C_Rank', 'T_Rank', 'ICT_Rank']
+ele_cols = ['Name', 'Team', 'Pos', 'GW_Pts', 'Pts', '£', 'TSB%', 'GP', 'Mins',
+            'GS', 'A', 'Pen_Miss', 'CS', 'GC', 'OG', 'P_Saved', 'S', 'YC',
+            'RC', 'B', 'BPS', 'Value', 'PPG', 'I', 'C', 'T', 'ICT', 'I_Rank',
+            'C_Rank', 'T_Rank', 'ICT_Rank']
 
 ele_df = ele_df[ele_cols]
 
