@@ -24,9 +24,14 @@ st.sidebar.write('[Github](https://github.com/TimYouell15)')
 
 
 # 2 drop-down menus choosing 2 players
-player_dict = get_player_id_dict()
+full_player_dict = get_player_id_dict(web_name=False)
 
-player1 = st.selectbox("Choose Player", player_dict.values())
+player1 = st.sidebar.selectbox("Choose Player", full_player_dict.values())
+
+player2 = st.sidebar.selectbox("Choose Player", full_player_dict.values())
+
+
+
 
 ele_data = get_bootstrap_data()['elements']
 

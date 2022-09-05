@@ -138,9 +138,13 @@ picks_df = get_manager_team_data(9, 4)
 
 # get player_id list
 
-def get_player_id_dict():
+def get_player_id_dict(web_name=True):
     ele_df = pd.DataFrame(get_bootstrap_data()['elements'])
-    id_dict = dict(zip(ele_df['id'], ele_df['web_name']))
+    if web_name == True:
+        id_dict = dict(zip(ele_df['id'], ele_df['web_name']))
+    else:
+        ele_df['full_name'] = ele_df['first_name'] + ' ' + ele_df['second_name']
+        id_dict = dict(zip(ele_df['id'], ele_df['full_name']))
     return id_dict
 
 #player_dict = get_player_id_dict()
