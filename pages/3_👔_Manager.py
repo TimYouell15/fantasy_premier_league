@@ -56,6 +56,7 @@ else:
             manager_team = manager_data['name']
             st.write('Displaying FPL 2022/23 Season Data for ' + manager_name + '\'s Team (' + manager_team + ')')
             man_data = get_manager_history_data(fpl_id)
+            man_data.sort_values('event', ascending=False, inplace=True)
             display_frame(man_data)
         else:
             st.write('FPL ID is too high to be a valid ID. Please try again.')
@@ -73,10 +74,9 @@ fpl_gw = st.selectbox(
     'Team on specific Gameweek', gw_complete_list
     )
 
-manager_team_df = get_manager_team_data(fpl_id, fpl_gw)
 
-
-
-
-
-display_frame(manager_team_df)
+if fpl_id == '':
+    st.write('')
+else:
+    manager_team_df = get_manager_team_data(fpl_id, fpl_gw)
+    display_frame(manager_team_df)
