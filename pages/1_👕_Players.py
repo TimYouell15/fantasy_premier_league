@@ -8,7 +8,7 @@ Created on Tue Aug  9 11:13:09 2022
 
 import streamlit as st
 import pandas as pd
-from fpl_api_collection import get_bootstrap_data
+from fpl_api_collection import get_player_id_dict, get_bootstrap_data
 
 base_url = 'https://fantasy.premierleague.com/api/'
 
@@ -21,6 +21,12 @@ st.sidebar.write("""This website is designed to help you analyse and
                  options for your team.""")
 st.sidebar.write('[Github](https://github.com/TimYouell15)')
 
+
+
+# 2 drop-down menus choosing 2 players
+player_dict = get_player_id_dict()
+
+player1 = st.selectbox("Choose Player", player_dict.values())
 
 ele_data = get_bootstrap_data()['elements']
 

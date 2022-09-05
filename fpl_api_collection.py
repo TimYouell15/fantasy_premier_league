@@ -7,6 +7,7 @@ Created on Tue Aug  9 15:26:50 2022
 """
 
 import pandas as pd
+from collections import ChainMap
 import requests
 
 base_url = 'https://fantasy.premierleague.com/api/'
@@ -59,9 +60,9 @@ def get_manager_history_data(manager_id):
         print('Unable to reach FPL entry API endpoint.')
 
 
-def get_manager_team_data(manager_id, gameweek):
-    manager_data_url = base_url + 'entry/' + str(9) + '/event/' + str(gameweek) + '/picks/'
-    resp = requests.get(manager_data_url)
+def get_manager_team_data(m_id, gw):
+    m_url = base_url + 'entry/' + str(m_id) + '/event/' + str(gw) + '/picks/'
+    resp = requests.get(m_url)
     if resp.status_code != 200:
         raise Exception('Response was status code ' + str(resp.status_code))
     json = resp.json()
@@ -92,7 +93,7 @@ def get_manager_details(manager_id):
         print('Unable to reach FPL entry API endpoint.')
 
 
-
+'''
 ele_stats_data = get_bootstrap_data()['element_stats']
 ele_types_data = get_bootstrap_data()['element_types']
 ele_data = get_bootstrap_data()['elements']
@@ -128,5 +129,81 @@ ele_cols = ['web_name', 'chance_of_playing_this_round', 'element_type',
 ele_df = ele_df[ele_cols]
 
 picks_df = get_manager_team_data(9, 4)
+'''
+
+# need to do an original data pull to get historic gw_data for every player_id
+# shouldn't matter if new player_id's are added via tranfsers etc because it
+# should just get added to the big dataset
+
+
+# get player_id list
+
+def get_player_id_dict():
+    ele_df = pd.DataFrame(get_bootstrap_data()['elements'])
+    id_dict = dict(zip(ele_df['id'], ele_df['web_name']))
+    return id_dict
+
+#player_dict = get_player_id_dict()
+
+# cut the sample down to 10 to make it easier to work through
+#player_dict_sample = {k: player_dict[k] for k in list(player_dict)[:10]}
+
+
+def get_player_hist_df(player_id) -> pd.DataFrame():
+    req_url = base_url + 'element-summary/' + str(player_id) + '/'
+    player_data = requests.get(req_url).json()['history']
+    player_df = pd.DataFrame(player_data)
+    return player_df
+
+
+def collate_player_hist() -> pd.DataFrame():
+    player_dfs = []
+    player_dict = get_player_id_dict()
+    for player_id, player_name in player_dict.items():
+        print('Getting GW historic data for ' + player_name)
+        success = False
+        while not success:
+            try:
+                player_df = get_player_hist_df(player_id)
+                player_dfs.append(player_df)
+                success = True
+            except:
+                print('error getting ' + player_name + ' data')
+    hist_df = pd.concat(player_dfs)
+    return hist_df
+
+#hist_df = pd.concat(player_dfs)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
