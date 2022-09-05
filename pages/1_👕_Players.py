@@ -14,6 +14,12 @@ base_url = 'https://fantasy.premierleague.com/api/'
 
 st.set_page_config(page_title='Player Stats', page_icon=':shirt:', layout='wide')
 
+# 2 drop-down menus choosing 2 players
+full_player_dict = get_player_id_dict(web_name=False)
+
+player1 = st.sidebar.selectbox("Choose Player One", full_player_dict.values())
+
+player2 = st.sidebar.selectbox("Choose Player Two", full_player_dict.values())
 
 st.sidebar.subheader('About')
 st.sidebar.write("""This website is designed to help you analyse and
@@ -23,12 +29,7 @@ st.sidebar.write('[Github](https://github.com/TimYouell15)')
 
 
 
-# 2 drop-down menus choosing 2 players
-full_player_dict = get_player_id_dict(web_name=False)
 
-player1 = st.sidebar.selectbox("Choose Player", full_player_dict.values())
-
-player2 = st.sidebar.selectbox("Choose Player", full_player_dict.values())
 
 
 

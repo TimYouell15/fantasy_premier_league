@@ -37,32 +37,33 @@ ele_data = get_bootstrap_data()['elements']
 ele_df = pd.DataFrame(ele_data)
 #keep only required cols
 
-
-ele_cols = ['web_name', 'chance_of_playing_this_round', 'element_type',
-            'event_points', 'form', 'now_cost', 'points_per_game',
-            'selected_by_percent', 'team', 'total_points',
-            'transfers_in_event', 'transfers_out_event', 'value_form',
-            'value_season', 'minutes', 'goals_scored', 'assists',
-            'clean_sheets', 'goals_conceded', 'own_goals', 'penalties_saved',
-            'penalties_missed', 'yellow_cards', 'red_cards', 'saves', 'bonus',
-            'bps', 'influence', 'creativity', 'threat', 'ict_index',
-            'influence_rank', 'influence_rank_type', 'creativity_rank',
-            'creativity_rank_type', 'threat_rank', 'threat_rank_type',
-            'ict_index_rank', 'ict_index_rank_type', 'dreamteam_count']
-
-ele_df = ele_df[ele_cols]
-
-ele_df.sort_values('total_points', ascending=False, inplace=True)
-
-ele_df['games_played'] = (ele_df['total_points'].astype(float)/ele_df['points_per_game'].astype(float)).round(0)
-ele_df['games_played'].fillna(0, inplace=True)
-ele_df['games_played'] = ele_df['games_played'].astype(int)
+rn_cols = {'web_name': 'Name', 'team': 'Team', 'element_type': 'Pos', 
+           'event_points': 'Event_Pts', 'total_points': 'Pts',
+           'now_cost': '£', 'selected_by_percent': 'TSB%', 'minutes': 'Mins',
+           'goals_scored': 'GS', 'assists': 'A',
+           'penalties_missed': 'Pen_Miss', 'clean_sheets': 'CS',
+           'goals_conceded': 'GC', 'own_goals': 'OG',
+           'penalties_saved': 'P_Saved', 'saves': 'S',
+           'yellow_cards': 'YC', 'red_cards': 'RC', 'bonus': 'B', 'bps': 'BPS',
+           'value_form': 'Value', 'points_per_game': 'PPG', 'influence': 'I',
+           'creativity': 'C', 'threat': 'T', 'ict_index': 'ICT',
+           'influence_rank': 'I_Rank', 'creativity_rank': 'C_Rank',
+           'threat_rank': 'T_Rank', 'ict_index_rank': 'ICT_Rank',
+           'tranfers_in_event': 'T_In', 'transfers_out_event': 'T_Out'}
+ele_df.rename(columns=rn_cols, inplace=True)
 
 
-ele_df['now_cost'] = ele_df['now_cost']/10
+ele_df.sort_values('Pts', ascending=False, inplace=True)
+
+ele_df['GP'] = (ele_df['Pts'].astype(float)/ele_df['PPG'].astype(float)).round(0)
+ele_df['GP'].fillna(0, inplace=True)
+ele_df['GP'] = ele_df['GP'].astype(int)
 
 
-ele_df['selected_by_percent'] = ele_df['selected_by_percent'].astype(float)
+ele_df['£'] = ele_df['£']/10
+
+
+ele_df['TSB%'] = ele_df['TSB%'].astype(float)
 
 def display_frame(df):
     '''display dataframe with all float columns rounded to 1 decimal place'''
@@ -70,28 +71,38 @@ def display_frame(df):
     st.dataframe(df.style.format(subset=float_cols, formatter='{:.1f}'))
 
 st.header('Season Totals')
-display_frame(ele_df)
+
+ele_cols = ['Name', 'Team', 'Pos', 'Event_Pts', 'Pts', '£', 'TSB%', 'GP',
+            'Mins', 'GS', 'A', 'Pen_Miss', 'CS', 'GC', 'OG', 'P_Saved', 'S',
+            'YC', 'RC', 'B', 'BPS', 'Value', 'PPG', 'I', 'C', 'T', 'ICT',
+            'I_Rank', 'C_Rank', 'T_Rank', 'ICT_Rank']
+
+ele_df = ele_df[ele_cols]
+
+indexed_ele_df = ele_df.set_index('Name')
+
+display_frame(indexed_ele_df)
 
 
 scatter_x_var = st.selectbox(
     'X axis variable',
-    ['now_cost', 'minutes', 'selected_by_percent', 'games_played']
+    ['£', 'Mins', 'TSB%', 'GP']
 )
 
-scatter_lookup = {'games_played': 'games_played', 'now_cost': 'now_cost', 'minutes': 'minutes', 'selected_by_percent': 'selected_by_percent'}
+scatter_lookup = {'GP': 'GP', '£': '£', 'Mins': 'Mins', 'TSB%': 'TSB%'}
 
 st.header('Points per ' + scatter_x_var)
 c = alt.Chart(ele_df).mark_circle(size=75).encode(
     x=scatter_lookup[scatter_x_var],
-    y='total_points',
-    color='element_type',
-    tooltip=['web_name', 'total_points']
+    y='Pts',
+    color='Pos',
+    tooltip=['Name', 'Pts']
 )
 st.altair_chart(c, use_container_width=True)
 
 
 st.header('Differentials')
-ele_df['point_per_selected_by'] = ele_df['total_points'].astype(float)/ele_df['selected_by_percent'].astype(float)
+ele_df['point_per_selected_by'] = ele_df['Pts'].astype(float)/ele_df['TSB%'].astype(float)
 
 
 
