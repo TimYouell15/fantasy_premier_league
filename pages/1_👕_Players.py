@@ -8,8 +8,9 @@ Created on Tue Aug  9 11:13:09 2022
 
 import streamlit as st
 import pandas as pd
-import numpy as np
-from fpl_api_collection import get_player_id_dict, get_bootstrap_data
+from fpl_api_collection import (
+    get_player_id_dict, get_bootstrap_data, get_player_hist_df
+)
 
 base_url = 'https://fantasy.premierleague.com/api/'
 
@@ -27,8 +28,6 @@ st.sidebar.write("""This website is designed to help you analyse and
                  ultimately pick the best Fantasy Premier League Football
                  options for your team.""")
 st.sidebar.write('[GitHub](https://github.com/TimYouell15)')
-
-
 
 
 ele_types_data = get_bootstrap_data()['element_types']
@@ -54,27 +53,71 @@ ele_cols = ['web_name', 'chance_of_playing_this_round', 'element_type',
 
 ele_df = ele_df[ele_cols]
 
-df_cut = ele_df.loc[ele_df['minutes'] >= 90]
 
-pivot=ele_df.pivot_table(index='element_type', values='total_points', aggfunc=np.mean).reset_index()
-pp_position = pivot.sort_values('total_points',ascending=False)
-
-
+# df_cut = ele_df.loc[ele_df['minutes'] >= 90]
+# pivot=ele_df.pivot_table(index='element_type', values='total_points', aggfunc=np.mean).reset_index()
+# pp_position = pivot.sort_values('total_points',ascending=False)
 
 
-'''
+
 # comparison of players via spider web method?
-- chances per 90
-- assists per 90
-- goals per 90
-- xA per 90
-- xG per 90
-- crosses per 90
-- shots per 90
+# - chances per 90
+# - assists per 90
+# - goals per 90
+# - xA per 90
+# - xG per 90
+# - crosses per 90
+# - shots per 90
 
-# comparison of keepers - automatically switch to keeper stats
-- saves per 90
-- bps per 90
-- etc
-'''
+# # comparison of keepers - automatically switch to keeper stats
+# - saves per 90
+# - bps per 90
+# - etc
 
+st.header("Players")
+st.write('Use the dropdown in the sidebar to select and compare the stats of 2 players')
+
+# get player id from player name
+# player1_id = ...
+
+
+def collate_hist_df_from_name(player_name):
+    p_id = [k for k, v in full_player_dict.items() if v == player_name]
+    p_df = get_player_hist_df(str(p_id[0]))
+    p_df.loc[p_df['was_home'] == True, 'result'] = p_df['team_h_score']\
+        .astype(str) + '-' + p_df['team_a_score'].astype(str)
+    p_df.loc[p_df['was_home'] == False, 'result'] = p_df['team_a_score']\
+            .astype(str) + '-' + p_df['team_h_score'].astype(str)
+    col_rn_dict = {'round': 'GW', 'opponent_team': 'vs',
+                   'total_points': 'GW_Pts', 'minutes': 'Mins',
+                   'goals_scored': 'GS', 'assists': 'A', 'clean_sheets': 'CS',
+                   'goals_conceded': 'GC', 'own_goals': 'OG',
+                   'penalties_saved': 'Pen_Save',
+                   'penalties_missed': 'Pen_Miss', 'yellow_cards': 'YC',
+                   'red_cards': 'RC', 'saves': 'S', 'bonus': 'B',
+                   'bps': 'BPS', 'influence': 'I', 'creativity': 'C',
+                   'threat': 'T', 'ict_index': 'ICT', 'value': '£',
+                   'selected': 'SB', 'transfers_in': 'Tran_In',
+                   'transfers_out': 'Tran_Out'}
+    p_df.rename(columns=col_rn_dict, inplace=True)
+    col_order = ['GW', 'vs', 'result', 'GW_Pts', 'Mins', 'GS', 'A', 'Pen_Miss',
+                 'CS', 'GC', 'OG', 'Pen_Save', 'S', 'YC', 'RC', 'B', 'BPS', '£', 
+                 'I', 'C', 'T', 'ICT', 'SB', 'Tran_In', 'Tran_Out']
+    p_df = p_df[col_order]
+    return p_df
+
+
+player1_df = collate_hist_df_from_name(player1)
+player2_df = collate_hist_df_from_name(player2)
+
+def display_frame(df):
+    '''display dataframe with all float columns rounded to 1 decimal place'''
+    float_cols = df.select_dtypes(include='float64').columns.values
+    st.dataframe(df.style.format(subset=float_cols, formatter='{:.1f}'))
+
+st.subheader('Player GW History')
+display_frame(player1_df)
+display_frame(player2_df)
+
+
+# totals df from ele_df and gw hist df

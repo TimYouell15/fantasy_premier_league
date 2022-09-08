@@ -54,7 +54,7 @@ rn_cols = {'web_name': 'Name', 'team': 'Team', 'element_type': 'Pos',
            'goals_scored': 'GS', 'assists': 'A',
            'penalties_missed': 'Pen_Miss', 'clean_sheets': 'CS',
            'goals_conceded': 'GC', 'own_goals': 'OG',
-           'penalties_saved': 'P_Saved', 'saves': 'S',
+           'penalties_saved': 'Pen_Save', 'saves': 'S',
            'yellow_cards': 'YC', 'red_cards': 'RC', 'bonus': 'B', 'bps': 'BPS',
            'value_form': 'Value', 'points_per_game': 'PPG', 'influence': 'I',
            'creativity': 'C', 'threat': 'T', 'ict_index': 'ICT',
@@ -79,7 +79,7 @@ ele_df['TSB%'] = ele_df['TSB%'].astype(float)
 st.header('Season Totals')
 
 ele_cols = ['Name', 'Team', 'Pos', 'GW_Pts', 'Pts', '£', 'TSB%', 'GP', 'Mins',
-            'GS', 'A', 'Pen_Miss', 'CS', 'GC', 'OG', 'P_Saved', 'S', 'YC',
+            'GS', 'A', 'Pen_Miss', 'CS', 'GC', 'OG', 'Pen_Save', 'S', 'YC',
             'RC', 'B', 'BPS', 'Value', 'PPG', 'I', 'C', 'T', 'ICT', 'I_Rank',
             'C_Rank', 'T_Rank', 'ICT_Rank']
 
