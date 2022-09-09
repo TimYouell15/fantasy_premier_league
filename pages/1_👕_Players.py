@@ -33,6 +33,9 @@ st.sidebar.write('[GitHub](https://github.com/TimYouell15)')
 ele_types_data = get_bootstrap_data()['element_types']
 ele_types_df = pd.DataFrame(ele_types_data)
 
+teams_data = get_bootstrap_data()['teams']
+teams_df = pd.DataFrame(teams_data)
+
 ele_data = get_bootstrap_data()['elements']
 ele_df = pd.DataFrame(ele_data)
 
@@ -104,6 +107,8 @@ def collate_hist_df_from_name(player_name):
                  'CS', 'GC', 'OG', 'Pen_Save', 'S', 'YC', 'RC', 'B', 'BPS', '£', 
                  'I', 'C', 'T', 'ICT', 'SB', 'Tran_In', 'Tran_Out']
     p_df = p_df[col_order]
+    # map opponent teams
+    p_df['vs'] = p_df['vs'].map(teams_df.set_index('id')['short_name'])
     return p_df
 
 
@@ -116,8 +121,15 @@ def display_frame(df):
     st.dataframe(df.style.format(subset=float_cols, formatter='{:.1f}'))
 
 st.subheader('Player GW History')
-display_frame(player1_df)
-display_frame(player2_df)
 
+rows = st.columns(2)
+#display_frame(player1_df)
+#display_frame(player2_df)
+
+rows[0].subheader(player1)
+rows[0].dataframe(player1_df)
+
+rows[1].subheader(player2)
+rows[1].dataframe(player2_df)
 
 # totals df from ele_df and gw hist df
