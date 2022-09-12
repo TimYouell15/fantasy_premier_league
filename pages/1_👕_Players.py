@@ -19,10 +19,6 @@ st.set_page_config(page_title='Player Stats', page_icon=':shirt:', layout='wide'
 # 2 drop-down menus choosing 2 players
 full_player_dict = get_player_id_dict(web_name=False)
 
-player1 = st.sidebar.selectbox("Choose Player One", full_player_dict.values())
-
-player2 = st.sidebar.selectbox("Choose Player Two", full_player_dict.values())
-
 st.sidebar.subheader('About')
 st.sidebar.write("""This website is designed to help you analyse and
                  ultimately pick the best Fantasy Premier League Football
@@ -78,7 +74,6 @@ ele_df = ele_df[ele_cols]
 # - etc
 
 st.header("Players")
-st.write('Use the dropdown in the sidebar to select and compare the stats of 2 players')
 
 # get player id from player name
 # player1_id = ...
@@ -92,7 +87,7 @@ def collate_hist_df_from_name(player_name):
     p_df.loc[p_df['was_home'] == False, 'result'] = p_df['team_a_score']\
             .astype(str) + '-' + p_df['team_h_score'].astype(str)
     col_rn_dict = {'round': 'GW', 'opponent_team': 'vs',
-                   'total_points': 'GW_Pts', 'minutes': 'Mins',
+                   'total_points': 'Pts', 'minutes': 'Mins',
                    'goals_scored': 'GS', 'assists': 'A', 'clean_sheets': 'CS',
                    'goals_conceded': 'GC', 'own_goals': 'OG',
                    'penalties_saved': 'Pen_Save',
@@ -103,17 +98,16 @@ def collate_hist_df_from_name(player_name):
                    'selected': 'SB', 'transfers_in': 'Tran_In',
                    'transfers_out': 'Tran_Out'}
     p_df.rename(columns=col_rn_dict, inplace=True)
-    col_order = ['GW', 'vs', 'result', 'GW_Pts', 'Mins', 'GS', 'A', 'Pen_Miss',
-                 'CS', 'GC', 'OG', 'Pen_Save', 'S', 'YC', 'RC', 'B', 'BPS', '£', 
-                 'I', 'C', 'T', 'ICT', 'SB', 'Tran_In', 'Tran_Out']
+    col_order = ['GW', 'vs', 'result', 'Pts', 'Mins', 'GS', 'A', 'Pen_Miss',
+                 'CS', 'GC', 'OG', 'Pen_Save', 'S', 'YC', 'RC', 'B', 'BPS',
+                 '£', 'I', 'C', 'T', 'ICT', 'SB', 'Tran_In', 'Tran_Out']
     p_df = p_df[col_order]
     # map opponent teams
     p_df['vs'] = p_df['vs'].map(teams_df.set_index('id')['short_name'])
+    p_df.set_index('GW', inplace=True)
     return p_df
 
 
-player1_df = collate_hist_df_from_name(player1)
-player2_df = collate_hist_df_from_name(player2)
 
 def display_frame(df):
     '''display dataframe with all float columns rounded to 1 decimal place'''
@@ -126,10 +120,12 @@ rows = st.columns(2)
 #display_frame(player1_df)
 #display_frame(player2_df)
 
-rows[0].subheader(player1)
+player1 = rows[0].selectbox("Choose Player One", full_player_dict.values())
+player1_df = collate_hist_df_from_name(player1)
 rows[0].dataframe(player1_df)
 
-rows[1].subheader(player2)
+player2 = rows[1].selectbox("Choose Player Two", full_player_dict.values())
+player2_df = collate_hist_df_from_name(player2)
 rows[1].dataframe(player2_df)
 
 # totals df from ele_df and gw hist df

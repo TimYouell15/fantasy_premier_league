@@ -43,6 +43,11 @@ teams_list = teams_df['short_name'].unique().tolist()
 fixt_df['team_h'] = fixt_df['team_h'].map(teams_df.set_index('id')['short_name'])
 fixt_df['team_a'] = fixt_df['team_a'].map(teams_df.set_index('id')['short_name'])
 
+gw_dict = dict(zip(range(1,381),
+                   [num for num in range(1, 39) for x in range(10)]))
+fixt_df['event_lock'] = fixt_df['id'].map(gw_dict)
+
+
 team_fdr_data = []
 team_fixt_data = []
 for team in teams_list:
@@ -51,21 +56,25 @@ for team in teams_list:
     home_data.loc[:, 'was_home'] = True
     away_data.loc[:, 'was_home'] = False
     merged_df = pd.concat([home_data, away_data])
-    merged_df.sort_values('event', inplace=True)
-    gw_list = list(merged_df['event'])
-    merged_df.loc[merged_df['team_h'] == team, 'next'] = merged_df['team_a'] + ' (H)'
-    merged_df.loc[merged_df['team_a'] == team, 'next'] = merged_df['team_h'] + ' (A)'
-    merged_df.loc[merged_df['team_h'] == team, 'next_fdr'] = merged_df['team_h_difficulty']
-    merged_df.loc[merged_df['team_a'] == team, 'next_fdr'] = merged_df['team_a_difficulty']
+    merged_df.sort_values('event_lock', inplace=True)
+    # dealing with blank fixtures?
+
+    # gw_list = list(merged_df['event_lock'])
+    merged_df.loc[(merged_df['team_h'] == team) & (merged_df['event'].notnull()), 'next'] = merged_df['team_a'] + ' (H)'
+    merged_df.loc[(merged_df['team_a'] == team) & (merged_df['event'].notnull()), 'next'] = merged_df['team_h'] + ' (A)'
+    merged_df.loc[merged_df['event'].isnull(), 'next'] = 'BLANK'
+    merged_df.loc[(merged_df['team_h'] == team) & (merged_df['event'].notnull()), 'next_fdr'] = merged_df['team_h_difficulty']
+    merged_df.loc[(merged_df['team_a'] == team) & (merged_df['event'].notnull()), 'next_fdr'] = merged_df['team_a_difficulty']
+    #merged_df.loc[merged_df['event'].isnull(), 'next_fdr'] = 'BLANK'
     team_fixt_data.append(pd.DataFrame([team] + list(merged_df['next'])).transpose())
     team_fdr_data.append(pd.DataFrame([team] + list(merged_df['next_fdr'])).transpose())
     
     
-team_fdr_df = pd.concat(team_fdr_data).set_index(0).astype(float)
+team_fdr_df = pd.concat(team_fdr_data).set_index(0) ##.astype(float)
 team_fixt_df = pd.concat(team_fixt_data).set_index(0)
 
-gw_min = min(fixt_df['event'])
-gw_max = max(fixt_df['event'])
+gw_min = min(fixt_df['event_lock'])
+gw_max = max(fixt_df['event_lock'])
 
 
 def get_annot_size(sl1, sl2):
@@ -94,10 +103,11 @@ annot_size = get_annot_size(slider1, slider2)
 filtered_fixt_df = team_fdr_df.iloc[:, slider1-1: slider2]
 filtered_team_df = team_fixt_df.iloc[:, slider1-1: slider2]
 new_fixt_df = filtered_fixt_df.copy()
+# now need a new way of calculating ave_fdr
 new_fixt_df.loc[:, 'fixt_ave'] = new_fixt_df.mean(axis=1)
 new_fixt_df.sort_values('fixt_ave', ascending=True, inplace=True) # save index from here and apply to filtered_team_df.
 new_fixt_df.drop('fixt_ave', axis=1, inplace=True)
-
+new_fixt_df = new_fixt_df.astype(float)
 filtered_team_df = filtered_team_df.loc[new_fixt_df.index]
 
 fig, ax = plt.subplots()
