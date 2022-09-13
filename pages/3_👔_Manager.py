@@ -24,6 +24,7 @@ st.sidebar.write("""This website is designed to help you analyse and
                  options for your team.""")
 st.sidebar.write('[GitHub](https://github.com/TimYouell15)')
 
+st.title('Manager')
 
 def display_frame(df):
     '''display dataframe with all float columns rounded to 1 decimal place'''

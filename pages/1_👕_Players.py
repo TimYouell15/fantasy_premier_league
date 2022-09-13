@@ -9,7 +9,8 @@ Created on Tue Aug  9 11:13:09 2022
 import streamlit as st
 import pandas as pd
 from fpl_api_collection import (
-    get_player_id_dict, get_bootstrap_data, get_player_hist_df
+    get_player_id_dict, get_bootstrap_data, get_player_hist_df,
+    get_league_table
 )
 
 base_url = 'https://fantasy.premierleague.com/api/'
@@ -38,7 +39,7 @@ ele_df = pd.DataFrame(ele_data)
 ele_df['element_type'] = ele_df['element_type'].map(ele_types_df.set_index('id')['singular_name_short'])
 
 
-ele_cols = ['web_name', 'chance_of_playing_this_round', 'element_type',
+ele_cols = ['id', 'web_name', 'chance_of_playing_this_round', 'element_type',
             'event_points', 'form', 'now_cost', 'points_per_game',
             'selected_by_percent', 'team', 'total_points',
             'transfers_in_event', 'transfers_out_event', 'value_form',
@@ -51,7 +52,6 @@ ele_cols = ['web_name', 'chance_of_playing_this_round', 'element_type',
             'ict_index_rank', 'ict_index_rank_type', 'dreamteam_count']
 
 ele_df = ele_df[ele_cols]
-
 
 # df_cut = ele_df.loc[ele_df['minutes'] >= 90]
 # pivot=ele_df.pivot_table(index='element_type', values='total_points', aggfunc=np.mean).reset_index()
@@ -73,7 +73,7 @@ ele_df = ele_df[ele_cols]
 # - bps per 90
 # - etc
 
-st.header("Players")
+st.title("Players")
 
 # get player id from player name
 # player1_id = ...
@@ -108,24 +108,63 @@ def collate_hist_df_from_name(player_name):
     return p_df
 
 
+def collate_total_df_from_name(player_name):
+    p_id = [k for k, v in full_player_dict.items() if v == player_name]
+    df = ele_df.copy()
+    p_total_df = df.loc[df['id'] == p_id[0]]
+    # index = web_name
+    col_rn_dict = {'form': 'Form', 'points_per_game': 'PPG',
+                   'total_points': 'Pts', 'minutes': 'Mins',
+                   'goals_scored': 'GS', 'clean_sheets': 'CS',
+                   'goals_conceded': 'GC', 'own_goals': 'OG', 'assists': 'A',
+                   'penalties_saved': 'Pen_Save', 'now_cost': '£',
+                   'penalties_missed': 'Pen_Miss', 'yellow_cards': 'YC',
+                   'red_cards': 'RC', 'saves': 'S', 'bonus': 'B', 'bps': 'BPS',
+                   'selected_by_percent': 'TSB%'}
+    p_t = p_total_df.rename(columns=col_rn_dict)
+    col_order = ['web_name', 'team', 'Form', 'PPG', 'Pts', 'Mins', 'GS', 'A',
+                 'Pen_Miss', 'CS', 'GC', 'OG', 'Pen_Save', 'S', 'YC', 'RC',
+                 'B', 'BPS', '£', 'TSB%']
+    p_t = p_t[col_order]
+    p_t.set_index('web_name', inplace=True)
+    return p_t
+
+
+def collated_spider_df_from_name(player_name):
+    sp_df = collate_total_df_from_name(player_name)
+    games_played = get_games_played()
+    sp_df['90s'] = sp_df['Mins']/90
+    sp_df['G/90'] = sp_df['GS']/sp_df['90s']
+    sp_df['A/90'] = sp_df['A']/sp_df['90s']
+    sp_df['BPS/90'] = sp_df['BPS']/sp_df['90s']
+    sp_df['Ave_Mins'] = sp_df['Mins']/games_played
+    
+
 
 def display_frame(df):
     '''display dataframe with all float columns rounded to 1 decimal place'''
     float_cols = df.select_dtypes(include='float64').columns.values
     st.dataframe(df.style.format(subset=float_cols, formatter='{:.1f}'))
 
-st.subheader('Player GW History')
 
 rows = st.columns(2)
-#display_frame(player1_df)
-#display_frame(player2_df)
+
 
 player1 = rows[0].selectbox("Choose Player One", full_player_dict.values())
 player1_df = collate_hist_df_from_name(player1)
+player1_total_df = collate_total_df_from_name(player1)
 rows[0].dataframe(player1_df)
+rows[0].dataframe(player1_total_df)
 
 player2 = rows[1].selectbox("Choose Player Two", full_player_dict.values())
 player2_df = collate_hist_df_from_name(player2)
+player2_total_df = collate_total_df_from_name(player2)
 rows[1].dataframe(player2_df)
+rows[1].dataframe(player2_total_df)
 
-# totals df from ele_df and gw hist df
+
+
+
+
+
+

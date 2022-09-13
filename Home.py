@@ -10,7 +10,7 @@ base_url = 'https://fantasy.premierleague.com/api/'
 
 st.set_page_config(page_title='FPL Dashie', page_icon=':soccer:', layout='wide')
 st.title('Hello and welcome to FPL Dashie!')
-st.write('Please check back soon for Fantasy Premier League Football stats, graphs and predictions.')
+#st.write('Please check back soon for Fantasy Premier League Football stats, graphs and predictions.')
 
 
 st.sidebar.subheader('About')
@@ -99,17 +99,23 @@ scatter_lookup = {'GP': 'GP', '£': '£', 'Mins': 'Mins', 'TSB%': 'TSB%'}
 
 st.header('Points per ' + scatter_x_var)
 c = alt.Chart(ele_df).mark_circle(size=75).encode(
-    x=scatter_lookup[scatter_x_var],
+    alt.X(scatter_lookup[scatter_x_var], scale=alt.Scale(zero=False)),
     y='Pts',
     color='Pos',
     tooltip=['Name', 'Pts']
 )
 st.altair_chart(c, use_container_width=True)
 
+# df for split on X axis variable
+# e.g. points per million df sorted by ppm
 
-st.header('Differentials')
-ele_df['point_per_selected_by'] = ele_df['Pts'].astype(float)/ele_df['TSB%'].astype(float)
+var_df = indexed_ele_df.copy()
 
+var_df['Pts/' + scatter_x_var] = var_df['Pts'].astype(float)/var_df[scatter_x_var].astype(float)
+var_df.sort_values('Pts/' + scatter_x_var, ascending=False, inplace=True)
+droppers = ['I', 'C', 'T', 'ICT', 'I_Rank','C_Rank', 'T_Rank', 'ICT_Rank']
+var_df.drop(droppers, axis=1, inplace=True)
+display_frame(var_df)
 
 
 

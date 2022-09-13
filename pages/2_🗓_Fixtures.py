@@ -18,7 +18,7 @@ base_url = 'https://fantasy.premierleague.com/api/'
 
 st.set_page_config(page_title='Fixtures', page_icon=':calendar:', layout='wide')
 
-st.header("Premier League Fixture List")
+st.title("Premier League Fixture List")
 st.write('Use the sliders to filter the fixtures down to a specific gameweek range.')
 
 st.sidebar.subheader('About')
@@ -39,7 +39,7 @@ teams_df = pd.DataFrame(get_bootstrap_data()['teams'])
 
 teams_list = teams_df['short_name'].unique().tolist()
 
-# don't need to worry about blank and double fixtures just yet!
+# don't need to worry about double fixtures just yet!
 fixt_df['team_h'] = fixt_df['team_h'].map(teams_df.set_index('id')['short_name'])
 fixt_df['team_a'] = fixt_df['team_a'].map(teams_df.set_index('id')['short_name'])
 
@@ -57,20 +57,16 @@ for team in teams_list:
     away_data.loc[:, 'was_home'] = False
     merged_df = pd.concat([home_data, away_data])
     merged_df.sort_values('event_lock', inplace=True)
-    # dealing with blank fixtures?
-
-    # gw_list = list(merged_df['event_lock'])
     merged_df.loc[(merged_df['team_h'] == team) & (merged_df['event'].notnull()), 'next'] = merged_df['team_a'] + ' (H)'
     merged_df.loc[(merged_df['team_a'] == team) & (merged_df['event'].notnull()), 'next'] = merged_df['team_h'] + ' (A)'
     merged_df.loc[merged_df['event'].isnull(), 'next'] = 'BLANK'
     merged_df.loc[(merged_df['team_h'] == team) & (merged_df['event'].notnull()), 'next_fdr'] = merged_df['team_h_difficulty']
     merged_df.loc[(merged_df['team_a'] == team) & (merged_df['event'].notnull()), 'next_fdr'] = merged_df['team_a_difficulty']
-    #merged_df.loc[merged_df['event'].isnull(), 'next_fdr'] = 'BLANK'
     team_fixt_data.append(pd.DataFrame([team] + list(merged_df['next'])).transpose())
     team_fdr_data.append(pd.DataFrame([team] + list(merged_df['next_fdr'])).transpose())
     
     
-team_fdr_df = pd.concat(team_fdr_data).set_index(0) ##.astype(float)
+team_fdr_df = pd.concat(team_fdr_data).set_index(0)
 team_fixt_df = pd.concat(team_fixt_data).set_index(0)
 
 gw_min = min(fixt_df['event_lock'])
@@ -103,9 +99,8 @@ annot_size = get_annot_size(slider1, slider2)
 filtered_fixt_df = team_fdr_df.iloc[:, slider1-1: slider2]
 filtered_team_df = team_fixt_df.iloc[:, slider1-1: slider2]
 new_fixt_df = filtered_fixt_df.copy()
-# now need a new way of calculating ave_fdr
 new_fixt_df.loc[:, 'fixt_ave'] = new_fixt_df.mean(axis=1)
-new_fixt_df.sort_values('fixt_ave', ascending=True, inplace=True) # save index from here and apply to filtered_team_df.
+new_fixt_df.sort_values('fixt_ave', ascending=True, inplace=True)
 new_fixt_df.drop('fixt_ave', axis=1, inplace=True)
 new_fixt_df = new_fixt_df.astype(float)
 filtered_team_df = filtered_team_df.loc[new_fixt_df.index]

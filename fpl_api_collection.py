@@ -178,10 +178,46 @@ def collate_player_hist() -> pd.DataFrame():
 
 #hist_df = pd.concat(player_dfs)
 
-
-
-
-
+# Team, games_played, wins, losses, draws, goals_for, goals_against, GD, PTS, Form? [W,W,L,D,W]
+def get_league_table():
+    fixt_df = get_fixture_data()
+    teams_df = pd.DataFrame(get_bootstrap_data()['teams'])
+    teams_id_list = teams_df['id'].unique().tolist()
+    df_list = []
+    for t_id in teams_id_list:
+        # count times team_id appears in fin_df
+        home_data = fixt_df.copy().loc[fixt_df['team_h'] == t_id]
+        away_data = fixt_df.copy().loc[fixt_df['team_a'] == t_id]
+        home_data.loc[:, 'was_home'] = True
+        away_data.loc[:, 'was_home'] = False
+        merged_df = pd.concat([home_data, away_data])
+        merged_df = merged_df.loc[merged_df['finished']==True]
+        merged_df.sort_values('event', inplace=True)
+        merged_df.loc[(merged_df['was_home'] == True) & (merged_df['team_h_score'] > merged_df['team_a_score']), 'win'] = True
+        merged_df.loc[(merged_df['was_home'] == False) & (merged_df['team_a_score'] > merged_df['team_h_score']), 'win'] = True
+        merged_df.loc[(merged_df['team_h_score'] == merged_df['team_a_score']), 'draw'] = True
+        merged_df.loc[(merged_df['was_home'] == True) & (merged_df['team_h_score'] < merged_df['team_a_score']), 'loss'] = True
+        merged_df.loc[(merged_df['was_home'] == False) & (merged_df['team_a_score'] < merged_df['team_h_score']), 'loss'] = True
+        merged_df.loc[(merged_df['was_home'] == True), 'gf'] = merged_df['team_h_score']
+        merged_df.loc[(merged_df['was_home'] == False), 'gf'] = merged_df['team_a_score']
+        merged_df.loc[(merged_df['was_home'] == True), 'ga'] = merged_df['team_a_score']
+        merged_df.loc[(merged_df['was_home'] == False), 'ga'] = merged_df['team_h_score']
+        merged_df.loc[(merged_df['win'] == True), 'result'] = 'W'
+        merged_df.loc[(merged_df['draw'] == True), 'result'] = 'D'
+        merged_df.loc[(merged_df['loss'] == True), 'result'] = 'L'
+        ws = len(merged_df.loc[merged_df['win'] == True])
+        ds = len(merged_df.loc[merged_df['draw'] == True])
+        l_data = {'id': [t_id], 'GP': [len(merged_df)], 'W': [ws], 'D': [ds],
+                  'L': [len(merged_df.loc[merged_df['loss'] == True])],
+                  'GF': [merged_df['gf'].sum()], 'GA': [merged_df['ga'].sum()],
+                  'GD': [merged_df['gf'].sum() - merged_df['ga'].sum()],
+                  'Pts': [(ws*3) + ds],
+                  'Form': [merged_df['result'].tail(5).str.cat(sep='')]}
+        df_list.append(pd.DataFrame(l_data))
+    league_df = pd.concat(df_list)
+    league_df.sort_values(['Pts', 'GD'], ascending=False, inplace=True)
+    league_df['team'] = league_df['id'].map(teams_df.set_index('id')['short_name'])
+    return league_df
 
 
 
