@@ -138,12 +138,14 @@ picks_df = get_manager_team_data(9, 4)
 
 # get player_id list
 
-def get_player_id_dict(web_name=True):
+def get_player_id_dict(web_name=True) -> dict:
     ele_df = pd.DataFrame(get_bootstrap_data()['elements'])
+    teams_df = pd.DataFrame(get_bootstrap_data()['teams'])
+    ele_df['team_name'] = ele_df['team'].map(teams_df.set_index('id')['short_name'])
     if web_name == True:
         id_dict = dict(zip(ele_df['id'], ele_df['web_name']))
     else:
-        ele_df['full_name'] = ele_df['first_name'] + ' ' + ele_df['second_name']
+        ele_df['full_name'] = ele_df['first_name'] + ' ' + ele_df['second_name'] + ' (' + ele_df['team_name'] + ')'
         id_dict = dict(zip(ele_df['id'], ele_df['full_name']))
     return id_dict
 

@@ -12,6 +12,7 @@ from fpl_api_collection import (
     get_player_id_dict, get_bootstrap_data, get_player_hist_df,
     get_league_table
 )
+import plotly.graph_objects as go
 
 base_url = 'https://fantasy.premierleague.com/api/'
 
@@ -19,6 +20,7 @@ st.set_page_config(page_title='Player Stats', page_icon=':shirt:', layout='wide'
 
 # 2 drop-down menus choosing 2 players
 full_player_dict = get_player_id_dict(web_name=False)
+
 
 st.sidebar.subheader('About')
 st.sidebar.write("""This website is designed to help you analyse and
@@ -74,6 +76,7 @@ ele_df = ele_df[ele_cols]
 # - etc
 
 st.title("Players")
+st.write("Currently only looking at data available through the FPL API. FBRef and Understat data being added is on the To-Do list.")
 
 # get player id from player name
 # player1_id = ...
@@ -120,11 +123,12 @@ def collate_total_df_from_name(player_name):
                    'penalties_saved': 'Pen_Save', 'now_cost': '£',
                    'penalties_missed': 'Pen_Miss', 'yellow_cards': 'YC',
                    'red_cards': 'RC', 'saves': 'S', 'bonus': 'B', 'bps': 'BPS',
-                   'selected_by_percent': 'TSB%'}
+                   'selected_by_percent': 'TSB%', 'influence': 'I',
+                   'creativity': 'C', 'threat': 'T', 'ict_index': 'ICT'}
     p_t = p_total_df.rename(columns=col_rn_dict)
     col_order = ['web_name', 'team', 'Form', 'PPG', 'Pts', 'Mins', 'GS', 'A',
                  'Pen_Miss', 'CS', 'GC', 'OG', 'Pen_Save', 'S', 'YC', 'RC',
-                 'B', 'BPS', '£', 'TSB%']
+                 'B', 'BPS', 'I', 'C', 'T', 'ICT', '£', 'TSB%', 'element_type']
     p_t = p_t[col_order]
     p_t.set_index('web_name', inplace=True)
     return p_t
@@ -132,13 +136,22 @@ def collate_total_df_from_name(player_name):
 
 def collated_spider_df_from_name(player_name):
     sp_df = collate_total_df_from_name(player_name)
-    games_played = get_games_played()
+    league_df = get_league_table()
+    sp_df['gp'] = sp_df['team'].map(league_df.set_index('id')['GP'])
     sp_df['90s'] = sp_df['Mins']/90
     sp_df['G/90'] = sp_df['GS']/sp_df['90s']
     sp_df['A/90'] = sp_df['A']/sp_df['90s']
     sp_df['BPS/90'] = sp_df['BPS']/sp_df['90s']
-    sp_df['Ave_Mins'] = sp_df['Mins']/games_played
-    
+    sp_df['Ave_Mins'] = sp_df['Mins']/sp_df['gp']
+    sp_df['Influence/90'] = sp_df['I'].astype(float)/sp_df['90s']
+    sp_df['Creativity/90'] = sp_df['C'].astype(float)/sp_df['90s']
+    sp_df['Threat/90'] = sp_df['T'].astype(float)/sp_df['90s']
+    sp_df['ICT/90'] = sp_df['ICT'].astype(float)/sp_df['90s']
+    sp_df['CS/90'] = sp_df['CS']/sp_df['90s']
+    sp_df['GC/90'] = sp_df['GC']/sp_df['90s']
+    sp_df['YC/90'] = sp_df['YC']/sp_df['90s']
+    sp_df['B/90'] = sp_df['B']/sp_df['90s']
+    return sp_df
 
 
 def display_frame(df):
@@ -147,22 +160,68 @@ def display_frame(df):
     st.dataframe(df.style.format(subset=float_cols, formatter='{:.1f}'))
 
 
+def get_ICT_spider_plot(player_name1, player_name2):
+    cats = ['BPS/90', 'Ave_Mins', 'Influence/90', 'Creativity/90', 'Threat/90',
+            'ICT/90']
+    sp1_df = collated_spider_df_from_name(player_name1)
+    sp1_df['player_name'] = player_name1
+    sp1_df.set_index('player_name', inplace=True)
+    sp1_df = sp1_df[cats].transpose().reset_index()
+    
+    sp2_df = collated_spider_df_from_name(player_name2)
+    sp2_df['player_name'] = player_name2
+    sp2_df.set_index('player_name', inplace=True)
+    sp2_df = sp2_df[cats].transpose().reset_index()
+    
+    fig = go.Figure()
+    
+    fig.add_trace(go.Scatterpolar(name=player_name1, r=list(sp1_df[player_name1]), theta=list(sp1_df['index'])))
+    fig.add_trace(go.Scatterpolar(name=player_name2, r=list(sp2_df[player_name2]), theta=list(sp2_df['index'])))
+    fig.update_layout(legend=dict(x=0.33, y=1.2))
+    return fig
+
+
+def get_stats_spider_plot(player_name1, player_name2):
+    cats = ['G/90', 'A/90', 'CS/90', 'GC/90', 'YC/90', 'B/90']
+    sp1_df = collated_spider_df_from_name(player_name1)
+    sp1_df['player_name'] = player_name1
+    sp1_df.set_index('player_name', inplace=True)
+    sp1_df = sp1_df[cats].transpose().reset_index()
+    
+    sp2_df = collated_spider_df_from_name(player_name2)
+    sp2_df['player_name'] = player_name2
+    sp2_df.set_index('player_name', inplace=True)
+    sp2_df = sp2_df[cats].transpose().reset_index()
+    
+    fig = go.Figure()
+    
+    fig.add_trace(go.Scatterpolar(name=player_name1, r=list(sp1_df[player_name1]), theta=list(sp1_df['index'])))
+    fig.add_trace(go.Scatterpolar(name=player_name2, r=list(sp2_df[player_name2]), theta=list(sp2_df['index'])))
+    fig.update_layout(legend=dict(x=0.33, y=1.2))
+    return fig
+
+
 rows = st.columns(2)
 
-
-player1 = rows[0].selectbox("Choose Player One", full_player_dict.values())
+player1 = rows[0].selectbox("Choose Player One", full_player_dict.values(), index=5)
 player1_df = collate_hist_df_from_name(player1)
 player1_total_df = collate_total_df_from_name(player1)
+player1_total_df.drop('team', axis=1, inplace=True)
 rows[0].dataframe(player1_df)
 rows[0].dataframe(player1_total_df)
 
-player2 = rows[1].selectbox("Choose Player Two", full_player_dict.values())
+
+player2 = rows[1].selectbox("Choose Player Two", full_player_dict.values(), index=17)
 player2_df = collate_hist_df_from_name(player2)
 player2_total_df = collate_total_df_from_name(player2)
+player2_total_df.drop('team', axis=1, inplace=True)
 rows[1].dataframe(player2_df)
 rows[1].dataframe(player2_total_df)
 
 
+rows[0].plotly_chart(get_ICT_spider_plot(player1, player2))
+rows[1].plotly_chart(get_stats_spider_plot(player1, player2))
+#st.plotly_chart(get_spider_plot(player1, player2), use_container_width=True)
 
 
 
