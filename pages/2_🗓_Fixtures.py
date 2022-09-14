@@ -11,7 +11,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from fpl_api_collection import (
-    get_bootstrap_data, get_fixture_data, get_current_gw, get_fixture_dfs
+    get_bootstrap_data, get_current_gw, get_fixture_dfs
 )
 
 base_url = 'https://fantasy.premierleague.com/api/'
