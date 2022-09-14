@@ -11,7 +11,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from fpl_api_collection import (
-    get_bootstrap_data, get_fixture_data
+    get_bootstrap_data, get_fixture_data, get_current_gw, get_fixture_dfs
 )
 
 base_url = 'https://fantasy.premierleague.com/api/'
@@ -20,7 +20,7 @@ st.set_page_config(page_title='Fixtures', page_icon=':calendar:', layout='wide')
 
 st.title("Premier League Fixture List")
 st.write('Use the sliders to filter the fixtures down to a specific gameweek range.')
-st.write('NB: Final GW before the 2022 Qata World Cup is GW16.')
+st.write('NB: Final GW before the 2022 Qatar World Cup is GW16.')
 
 st.sidebar.subheader('About')
 st.sidebar.write("""This website is designed to help you analyse and
@@ -34,36 +34,6 @@ def display_frame(df):
     float_cols = df.select_dtypes(include='float64').columns.values
     st.dataframe(df.style.format(subset=float_cols, formatter='{:.1f}'))
 
-
-def get_fixture_dfs():
-    fixt_df = get_fixture_data()
-    teams_df = pd.DataFrame(get_bootstrap_data()['teams'])
-    teams_list = teams_df['short_name'].unique().tolist()
-    # don't need to worry about double fixtures just yet!
-    fixt_df['team_h'] = fixt_df['team_h'].map(teams_df.set_index('id')['short_name'])
-    fixt_df['team_a'] = fixt_df['team_a'].map(teams_df.set_index('id')['short_name'])
-    gw_dict = dict(zip(range(1,381),
-                       [num for num in range(1, 39) for x in range(10)]))
-    fixt_df['event_lock'] = fixt_df['id'].map(gw_dict)
-    team_fdr_data = []
-    team_fixt_data = []
-    for team in teams_list:
-        home_data = fixt_df.copy().loc[fixt_df['team_h'] == team]
-        away_data = fixt_df.copy().loc[fixt_df['team_a'] == team]
-        home_data.loc[:, 'was_home'] = True
-        away_data.loc[:, 'was_home'] = False
-        merged_df = pd.concat([home_data, away_data])
-        merged_df.sort_values('event_lock', inplace=True)
-        merged_df.loc[(merged_df['team_h'] == team) & (merged_df['event'].notnull()), 'next'] = merged_df['team_a'] + ' (H)'
-        merged_df.loc[(merged_df['team_a'] == team) & (merged_df['event'].notnull()), 'next'] = merged_df['team_h'] + ' (A)'
-        merged_df.loc[merged_df['event'].isnull(), 'next'] = 'BLANK'
-        merged_df.loc[(merged_df['team_h'] == team) & (merged_df['event'].notnull()), 'next_fdr'] = merged_df['team_h_difficulty']
-        merged_df.loc[(merged_df['team_a'] == team) & (merged_df['event'].notnull()), 'next_fdr'] = merged_df['team_a_difficulty']
-        team_fixt_data.append(pd.DataFrame([team] + list(merged_df['next'])).transpose())
-        team_fdr_data.append(pd.DataFrame([team] + list(merged_df['next_fdr'])).transpose())
-    team_fdr_df = pd.concat(team_fdr_data).set_index(0)
-    team_fixt_df = pd.concat(team_fixt_data).set_index(0)
-    return team_fdr_df, team_fixt_df
 
 team_fdr_df, team_fixt_df = get_fixture_dfs()
 
@@ -91,9 +61,9 @@ def get_annot_size(sl1, sl2):
     return annot_size
 
 # [gw_min, gw_max] should be swapped with [current_gw, current_gw+5] for initial showing
-# current_gw = get_current_gw()
+ct_gw = get_current_gw()
 
-slider1, slider2 = st.slider('Gameweek: ', gw_min, gw_max, [gw_min, gw_max], 1)
+slider1, slider2 = st.slider('Gameweek: ', gw_min, gw_max, [int(ct_gw), int(ct_gw+4)], 1)
 annot_size = get_annot_size(slider1, slider2)
 
 

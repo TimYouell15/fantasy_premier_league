@@ -151,6 +151,7 @@ def collated_spider_df_from_name(player_name):
     sp_df['GC/90'] = sp_df['GC']/sp_df['90s']
     sp_df['YC/90'] = sp_df['YC']/sp_df['90s']
     sp_df['B/90'] = sp_df['B']/sp_df['90s']
+    sp_df['S/90'] = sp_df['S']/sp_df['90s']
     return sp_df
 
 
@@ -177,12 +178,12 @@ def get_ICT_spider_plot(player_name1, player_name2):
     
     fig.add_trace(go.Scatterpolar(name=player_name1, r=list(sp1_df[player_name1]), theta=list(sp1_df['index'])))
     fig.add_trace(go.Scatterpolar(name=player_name2, r=list(sp2_df[player_name2]), theta=list(sp2_df['index'])))
-    fig.update_layout(legend=dict(x=0.33, y=1.2))
+    fig.update_layout(legend=dict(x=0.33, y=1.25))
     return fig
 
 
 def get_stats_spider_plot(player_name1, player_name2):
-    cats = ['G/90', 'A/90', 'CS/90', 'GC/90', 'YC/90', 'B/90']
+    cats = ['G/90', 'A/90', 'CS/90', 'GC/90', 'YC/90', 'B/90', 'S/90']
     sp1_df = collated_spider_df_from_name(player_name1)
     sp1_df['player_name'] = player_name1
     sp1_df.set_index('player_name', inplace=True)
@@ -197,7 +198,7 @@ def get_stats_spider_plot(player_name1, player_name2):
     
     fig.add_trace(go.Scatterpolar(name=player_name1, r=list(sp1_df[player_name1]), theta=list(sp1_df['index'])))
     fig.add_trace(go.Scatterpolar(name=player_name2, r=list(sp2_df[player_name2]), theta=list(sp2_df['index'])))
-    fig.update_layout(legend=dict(x=0.33, y=1.2))
+    fig.update_layout(legend=dict(x=0.33, y=1.25))
     return fig
 
 
