@@ -26,21 +26,12 @@ st.sidebar.write('[GitHub](https://github.com/TimYouell15)')
 
 st.title('Manager')
 
-def display_frame(df):
-    '''display dataframe with all float columns rounded to 1 decimal place'''
-    float_cols = df.select_dtypes(include='float64').columns.values
-    st.dataframe(df.style.format(subset=float_cols, formatter='{:.1f}'))
-
-
-# st.write please enter your FPL id below
-#st. text input box
-# is there a way to view total number of FPL players?
 def get_total_fpl_players():
     base_resp = requests.get(base_url + 'bootstrap-static/')
     return base_resp.json()['total_players']
 
 
-fpl_id = st.text_input('Please enter your FPL ID:', '')
+fpl_id = st.text_input('Please enter your FPL ID:', 392357)
 
 
 if fpl_id == '':
@@ -58,7 +49,8 @@ else:
             st.write('Displaying FPL 2022/23 Season Data for ' + manager_name + '\'s Team (' + manager_team + ')')
             man_data = get_manager_history_data(fpl_id)
             man_data.sort_values('event', ascending=False, inplace=True)
-            display_frame(man_data)
+            man_data.set_index('event', inplace=True)
+            st.dataframe(man_data, width=800)
         else:
             st.write('FPL ID is too high to be a valid ID. Please try again.')
             st.write('The total number of FPL players is: ' + str(total_players))
@@ -80,4 +72,4 @@ if fpl_id == '':
     st.write('')
 else:
     manager_team_df = get_manager_team_data(fpl_id, fpl_gw)
-    display_frame(manager_team_df)
+    st.dataframe(manager_team_df)

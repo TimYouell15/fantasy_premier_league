@@ -94,11 +94,17 @@ scatter_x_var = st.selectbox(
     'X axis variable',
     ['£', 'Mins', 'TSB%', 'GP']
 )
-
 scatter_lookup = {'GP': 'GP', '£': '£', 'Mins': 'Mins', 'TSB%': 'TSB%'}
 
+filter_pos = st.multiselect(
+    'Filter position type',
+    ['GKP', 'DEF', 'MID', 'FWD'],
+    ['GKP', 'DEF', 'MID', 'FWD']
+)
+
+
 st.header('Points per ' + scatter_x_var)
-c = alt.Chart(ele_df).mark_circle(size=75).encode(
+c = alt.Chart(ele_df.loc[ele_df['Pos'].isin(filter_pos)]).mark_circle(size=75).encode(
     alt.X(scatter_lookup[scatter_x_var], scale=alt.Scale(zero=False)),
     y='Pts',
     color='Pos',
@@ -111,6 +117,7 @@ st.altair_chart(c, use_container_width=True)
 
 var_df = indexed_ele_df.copy()
 
+var_df = var_df.loc[var_df['Pos'].isin(filter_pos)]
 var_df['Pts/' + scatter_x_var] = var_df['Pts'].astype(float)/var_df[scatter_x_var].astype(float)
 var_df.sort_values('Pts/' + scatter_x_var, ascending=False, inplace=True)
 droppers = ['I', 'C', 'T', 'ICT', 'I_Rank','C_Rank', 'T_Rank', 'ICT_Rank']
