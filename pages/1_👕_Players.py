@@ -9,7 +9,7 @@ Created on Tue Aug  9 11:13:09 2022
 import streamlit as st
 import pandas as pd
 from fpl_api_collection import (
-    get_player_id_dict, get_bootstrap_data, get_player_hist_df,
+    get_player_id_dict, get_bootstrap_data, get_player_data,
     get_league_table
 )
 import plotly.graph_objects as go
@@ -84,7 +84,8 @@ st.write("Currently only looking at data available through the FPL API. FBRef an
 
 def collate_hist_df_from_name(player_name):
     p_id = [k for k, v in full_player_dict.items() if v == player_name]
-    p_df = get_player_hist_df(str(p_id[0]))
+    p_data = get_player_data(str(p_id[0]))
+    p_df = pd.DataFrame(p_data['history'])
     p_df.loc[p_df['was_home'] == True, 'result'] = p_df['team_h_score']\
         .astype(str) + '-' + p_df['team_a_score'].astype(str)
     p_df.loc[p_df['was_home'] == False, 'result'] = p_df['team_a_score']\

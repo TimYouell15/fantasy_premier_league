@@ -48,9 +48,10 @@ else:
             manager_team = manager_data['name']
             st.write('Displaying FPL 2022/23 Season Data for ' + manager_name + '\'s Team (' + manager_team + ')')
             man_data = get_manager_history_data(fpl_id)
-            man_data.sort_values('event', ascending=False, inplace=True)
-            man_data.set_index('event', inplace=True)
-            st.dataframe(man_data, width=800)
+            man_gw_hist = pd.DataFrame(man_data['current'])
+            man_gw_hist.sort_values('event', ascending=False, inplace=True)
+            man_gw_hist.set_index('event', inplace=True)
+            st.dataframe(man_gw_hist, width=800)
         else:
             st.write('FPL ID is too high to be a valid ID. Please try again.')
             st.write('The total number of FPL players is: ' + str(total_players))
@@ -71,5 +72,6 @@ fpl_gw = st.selectbox(
 if fpl_id == '':
     st.write('')
 else:
-    manager_team_df = get_manager_team_data(fpl_id, fpl_gw)
+    man_picks_data = get_manager_team_data(fpl_id, fpl_gw)
+    manager_team_df = pd.DataFrame(man_picks_data['picks'])
     st.dataframe(manager_team_df)
