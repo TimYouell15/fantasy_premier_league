@@ -87,6 +87,8 @@ def get_manager_team_data(manager_id, gw):
     return resp.json()
 
 
+def get_total_fpl_players():
+    return get_bootstrap_data()['total_players']
 
 '''
 ele_stats_data = get_bootstrap_data()['element_stats']

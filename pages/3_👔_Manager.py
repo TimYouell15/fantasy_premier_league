@@ -40,7 +40,7 @@ else:
     try:
         fpl_id = int(fpl_id)
         total_players = get_total_fpl_players()
-        if fpl_id == 0:
+        if fpl_id <= 0:
             st.write('Please enter a valid FPL ID.')
         elif fpl_id <= total_players:
             manager_data = get_manager_details(fpl_id)
@@ -51,6 +51,7 @@ else:
             man_gw_hist = pd.DataFrame(man_data['current'])
             man_gw_hist.sort_values('event', ascending=False, inplace=True)
             man_gw_hist.set_index('event', inplace=True)
+            man_gw_hist.index.name = 'GW'
             st.dataframe(man_gw_hist, width=800)
         else:
             st.write('FPL ID is too high to be a valid ID. Please try again.')

@@ -60,7 +60,7 @@ rn_cols = {'web_name': 'Name', 'team': 'Team', 'element_type': 'Pos',
            'creativity': 'C', 'threat': 'T', 'ict_index': 'ICT',
            'influence_rank': 'I_Rank', 'creativity_rank': 'C_Rank',
            'threat_rank': 'T_Rank', 'ict_index_rank': 'ICT_Rank',
-           'tranfers_in_event': 'T_In', 'transfers_out_event': 'T_Out'}
+           'transfers_in_event': 'T_In', 'transfers_out_event': 'T_Out'}
 ele_df.rename(columns=rn_cols, inplace=True)
 
 
