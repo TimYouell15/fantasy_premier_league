@@ -137,8 +137,10 @@ def collate_total_df_from_name(player_name):
 
 def collated_spider_df_from_name(player_name):
     sp_df = collate_total_df_from_name(player_name)
-    league_df = get_league_table()
-    sp_df['gp'] = sp_df['team'].map(league_df.set_index('id')['GP'])
+    p_df = collate_hist_df_from_name(player_name)
+    # league_df = get_league_table()
+    # sp_df['gp'] = sp_df['team'].map(league_df.set_index('id')['GP'])
+    sp_df['gp'] = len(p_df)
     sp_df['90s'] = sp_df['Mins']/90
     sp_df['G/90'] = sp_df['GS']/sp_df['90s']
     sp_df['A/90'] = sp_df['A']/sp_df['90s']
