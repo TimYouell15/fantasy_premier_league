@@ -51,7 +51,12 @@ else:
             man_gw_hist = pd.DataFrame(man_data['current'])
             man_gw_hist.sort_values('event', ascending=False, inplace=True)
             man_gw_hist.set_index('event', inplace=True)
-            man_gw_hist.index.name = 'GW'
+            rn_cols = {'points': 'GWP', 'total_points': 'OP', 'rank': 'GWR',
+                       'overall_rank': 'OR', 'bank': '£', 'value': 'TV',
+                       'event_transfers': 'TM', 'event_transfers_cost': 'TC',
+                       'points_on_bench': 'PoB'}
+            man_gw_hist.rename(columns=rn_cols, inplace=True)
+            man_gw_hist.drop('rank_sort', axis=1, inplace=True)
             st.dataframe(man_gw_hist, width=800)
         else:
             st.write('FPL ID is too high to be a valid ID. Please try again.')
