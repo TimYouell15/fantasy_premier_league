@@ -58,7 +58,7 @@ else:
             man_gw_hist.rename(columns=rn_cols, inplace=True)
             man_gw_hist.drop('rank_sort', axis=1, inplace=True)
             man_gw_hist['TV'] = man_gw_hist['TV']/10
-            st.dataframe(man_gw_hist, width=800)
+            st.dataframe(man_gw_hist.style.format({'TV': '£{:.1f}'}), width=800)
         else:
             st.write('FPL ID is too high to be a valid ID. Please try again.')
             st.write('The total number of FPL players is: ' + str(total_players))
