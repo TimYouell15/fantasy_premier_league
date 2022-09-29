@@ -8,7 +8,7 @@ from fpl_api_collection import (
 
 base_url = 'https://fantasy.premierleague.com/api/'
 
-st.set_page_config(page_title='FPL Mavericks', page_icon=':soccer:', layout='wide')
+st.set_page_config(page_title='FPL Mavericks y8i8', page_icon=':soccer:', layout='wide')
 st.title('FPL Mavericks Dashboard')
 #st.write('Please check back soon for Fantasy Premier League Football stats, graphs and predictions.')
 
